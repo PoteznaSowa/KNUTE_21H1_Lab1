@@ -5,6 +5,7 @@ namespace Y2021H1_Lab1 {
 	class Program {
 		// Випадкові числа для перевірки лямбда-функцій.
 		static readonly Random random = new Random();
+		static int RandomInt() => random.Next(-0x7FFF_FFFE, 0x7FFF_FFFF);
 
 		// Створіть анонімний метод, який приймає в якості параметрів
 		// три цілочисельних аргумента і повертає середнє арифметичне цих аргументів.
@@ -13,11 +14,11 @@ namespace Y2021H1_Lab1 {
 			Func<int, int, int, double> func = (n1, n2, n3) => ((double)n1 + n2 + n3) / 3;
 
 			// Вивести на екран середнє арифметичне трьох випадкових чисел.
-			int n1 = random.Next(-1_999_999_999, 2_000_000_000);
-			int n2 = random.Next(-1_999_999_999, 2_000_000_000);
-			int n3 = random.Next(-1_999_999_999, 2_000_000_000);
+			int n1 = RandomInt();
 			Console.WriteLine($"n1 = {n1}");
+			int n2 = RandomInt();
 			Console.WriteLine($"n2 = {n2}");
+			int n3 = RandomInt();
 			Console.WriteLine($"n3 = {n3}");
 			Console.WriteLine($"avg(n1, n2, n3) = {func(n1, n2, n3):G15}");
 			Console.WriteLine();
@@ -60,7 +61,7 @@ namespace Y2021H1_Lab1 {
 						continue;
 					}
 
-					// Переконатися, що нечисловий елемент є певним арифметичним оператором.
+					// Переконатися, що нечисловий елемент є арифметичним оператором.
 					Func<double, double, double> op = item switch {
 						"+" => Add,
 						"-" => Sub,
@@ -119,15 +120,15 @@ namespace Y2021H1_Lab1 {
 			};
 
 			// Створити масив делегатів.
-			Func<int>[] func_arr = new Func<int>[random.Next(2, 1_000_000)];
+			Func<int>[] func_arr = new Func<int>[random.Next(2, 100)];
 			Console.WriteLine($"Створюємо масив з {func_arr.Length} делегатів.");
 			Console.WriteLine("Кожен із цих делегатів посилається на метод, що повертає випадкове ціле число.");
 
 			Console.WriteLine("Створюємо анонімний метод, що повертає середнє арифметичне чисел, що повертають ці делегати.");
 
-			// Заповнити масив лямбда-функціями.
+			// Заповнити масив делегатами, що посилаються на метод, що повертає випадкове ціле число.
 			for (int i = 0; i < func_arr.Length; i++) {
-				func_arr[i] = () => random.Next(-1_999_999_999, 2_000_000_000);
+				func_arr[i] = RandomInt;
 			}
 
 			// Викликати функцію, що приймає масив делегатів, і вивести результат.
