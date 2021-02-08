@@ -5,7 +5,7 @@ namespace Y2021H1_Lab1 {
 	class Program {
 		// Випадкові числа для перевірки лямбда-функцій.
 		static readonly Random random = new Random();
-		static int RandomInt() => random.Next(-0x7FFF_FFFE, 0x7FFF_FFFF);
+		static int RandomInt() => (random.Next() << 1) ^ random.Next();
 
 		// Створіть анонімний метод, який приймає в якості параметрів
 		// три цілочисельних аргумента і повертає середнє арифметичне цих аргументів.
@@ -21,6 +21,7 @@ namespace Y2021H1_Lab1 {
 			int n3 = RandomInt();
 			Console.WriteLine($"n3 = {n3}");
 			Console.WriteLine($"avg(n1, n2, n3) = {func(n1, n2, n3):G15}");
+
 			Console.WriteLine();
 		}
 
@@ -133,6 +134,7 @@ namespace Y2021H1_Lab1 {
 
 			// Викликати функцію, що приймає масив делегатів, і вивести результат.
 			Console.WriteLine($"Результат: {func(func_arr):G15}");
+
 			Console.WriteLine();
 		}
 
