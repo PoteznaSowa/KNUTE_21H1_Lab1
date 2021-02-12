@@ -4,23 +4,22 @@ using System.Collections.Generic;
 namespace Y2021H1_Lab1 {
 	class Program {
 		// Випадкові числа для перевірки лямбда-функцій.
-		static readonly Random random = new Random();
+		static readonly Random random = new();
 		static int RandomInt() => (random.Next() << 1) ^ random.Next();
 
 		// Створіть анонімний метод, який приймає в якості параметрів
 		// три цілочисельних аргумента і повертає середнє арифметичне цих аргументів.
 		static void Task1() {
 			// Оголосити анонімний метод, що повертає дійсне число.
-			Func<int, int, int, double> func = (n1, n2, n3) => ((double)n1 + n2 + n3) / 3;
+			// Перед обчисленням цілочисельні параметри приводяться до дійсних чисел.
+			Func<int, int, int, double> avg = (a, b, c) => ((double)a + b + c) / 3;
 
 			// Вивести на екран середнє арифметичне трьох випадкових чисел.
-			int n1 = RandomInt();
-			Console.WriteLine($"n1 = {n1}");
-			int n2 = RandomInt();
-			Console.WriteLine($"n2 = {n2}");
-			int n3 = RandomInt();
-			Console.WriteLine($"n3 = {n3}");
-			Console.WriteLine($"avg(n1, n2, n3) = {func(n1, n2, n3):G15}");
+			int a = RandomInt();
+			int b = RandomInt();
+			int c = RandomInt();
+			Console.WriteLine($"Середнє арифметичне чисел {a}, {b} і {c} дорівнює");
+			Console.WriteLine($"{avg(a, b, c):G15}.");
 
 			Console.WriteLine();
 		}
@@ -42,65 +41,68 @@ namespace Y2021H1_Lab1 {
 
 				// Оголосити лямбда-функції.
 				Func<double, double, double> Add, Sub, Mul, Div;
-				Add = (n1, n2) => n1 + n2;
-				Sub = (n1, n2) => n1 - n2;
-				Mul = (n1, n2) => n1 * n2;
-				Div = (n1, n2) => {
+				Add = (a, b) => a + b;
+				Sub = (a, b) => a - b;
+				Mul = (a, b) => a * b;
+				Div = (a, b) => {
 					// Викинути виняток у випадку ділення на ±0.
-					return n2 == 0.0 || n2 == -0.0 ?
-					throw new DivideByZeroException() :
-					n1 / n2;
+					return b is .0 or (-.0) ?
+						throw new DivideByZeroException() :
+						a / b;
 				};
 
 				// Числа в виразі зберігаємо в стеку.
-				Stack<double> stack = new Stack<double>();
+				Stack<double> stack = new();
 
-				foreach (string item in items) {
-					if (double.TryParse(item, out double num)) {
+				foreach (string i in items) {
+					if (double.TryParse(i, out double n)) {
 						// Помістити число в стек.
-						stack.Push(num);
+						stack.Push(n);
 						continue;
 					}
 
 					// Переконатися, що нечисловий елемент є арифметичним оператором.
-					Func<double, double, double> op = item switch {
+					Func<double, double, double> op = i switch {
 						"+" => Add,
 						"-" => Sub,
 						"*" => Mul,
 						"/" => Div,
-						_ => throw new ArgumentException($"Не вдалося розпізнати елемент: {item}")
+						_ => throw new ArgumentException($"Не вдалося розпізнати елемент: {i}")
 					};
 
 					// Зі стеку беремо другий, а потім перший операнди.
-					double n2 = stack.Pop();
-					double n1 = stack.Pop();
+					double a = stack.Pop();
 
 					// Обчислити арифметичну операцію та помістити результат у стек.
-					stack.Push(op(n1, n2));
+					stack.Push(op(stack.Pop(), a));
 				}
 
 				// Повертаючи результат, переконатися, що стек буде порожній.
-				return stack.Count != 1 ?
-					throw new ArgumentException("Вираз помилковий.") :
-					stack.Pop();
+				return stack.Count == 1 ?
+					stack.Pop() :
+					throw new ArgumentException("Вираз помилковий.");
 			}
 
 			for (; ; ) {
 				Console.WriteLine("Введіть математичний вираз у вигляді зворотного польського запису.");
 				Console.WriteLine("Щоб вийти з калькулятора, просто натисніть Enter.");
 				string exp = Console.ReadLine();
-				if (exp.Length == 0) {
+				if (string.IsNullOrEmpty(exp)) {
 					break;
 				}
 
 				// Ловити винятки, які може кидати калькулятор.
 				try {
+					// Якщо при обчисленні виразу не виникне жодних помилок,
+					// його результат буде виведено на екран.
 					Console.WriteLine($"Результат: {CalculateRPN(exp):G15}");
 				} catch (ArgumentException e) {
+					// Цей виняток виникає, якщо обчислити вираз неможливо.
 					Console.WriteLine(e.Message);
 				} catch (DivideByZeroException) {
 					Console.WriteLine("Помилка ділення на нуль.");
 				} catch (InvalidOperationException) {
+					// Цей виняток виникає при спробі взяти елемент із порожнього стеку.
 					Console.WriteLine("Вираз помилковий.");
 				}
 			}
@@ -117,6 +119,7 @@ namespace Y2021H1_Lab1 {
 				foreach (Func<int> func in dels) {
 					sum += func();
 				}
+
 				return sum / dels.Length;
 			};
 
@@ -125,12 +128,11 @@ namespace Y2021H1_Lab1 {
 			Console.WriteLine($"Створюємо масив з {func_arr.Length} делегатів.");
 			Console.WriteLine("Кожен із цих делегатів посилається на метод, що повертає випадкове ціле число.");
 
-			Console.WriteLine("Створюємо анонімний метод, що повертає середнє арифметичне чисел, що повертають ці делегати.");
+			Console.WriteLine("Створюємо анонімний метод, що повертає середнє арифметичне чисел, що повертають");
+			Console.WriteLine("ці делегати.");
 
 			// Заповнити масив делегатами, що посилаються на метод, що повертає випадкове ціле число.
-			for (int i = 0; i < func_arr.Length; i++) {
-				func_arr[i] = RandomInt;
-			}
+			Array.Fill(func_arr, RandomInt);
 
 			// Викликати функцію, що приймає масив делегатів, і вивести результат.
 			Console.WriteLine($"Результат: {func(func_arr):G15}");
